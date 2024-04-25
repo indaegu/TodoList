@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ToDo List with Local Storage</title>
+    <style>
+      * {
+        font-family: "GOSEONGGEUMGANGNURI", cursive;
+      }
+
+      .container {
+        max-width: 700px;
+        margin: 0 auto;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+      }
+      .inputbox {
+        display: flex;
+        justify-content: space-evenly;
+        align-items: center;
+      }
+      h1 {
+        text-align: center;
+      }
+
+      input[type="text"] {
+        width: calc(80% - 80px);
+        padding: 8px;
+        font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+      }
+
+      button {
+        padding: 10px 10px;
+        min-width: 50px;
+        font-size: 16px;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        border-radius: 3px;
+        margin-right: 5px;
+        margin-left: 5px;
+      }
+      button:hover {
+        background-color: #3e8e41;
+      }
+
+      #todoList {
+        margin-top: 20px;
+        margin-right: 10px;
+      }
+
+      .todo-item {
+        margin-bottom: 5px;
+        margin-right: 10px;
+      }
+
+      button:hover {
+        background-color: #45a049;
+      }
+
+      @font-face {
+        font-family: "GOSEONGGEUMGANGNURI";
+        src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/2404-2@1.0/GOSEONGGEUMGANGNURI.woff2")
+          format("woff2");
+        font-weight: normal;
+        font-style: normal;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>TO-Do-List</h1>
+      <div class="inputbox">
+        <input type="text" id="todoInput" placeholder="할일을 입력하세요" />
+        <button onclick="addTodo()">할일 추가</button>
+        <button onclick="deleteAll()">모두 삭제</button>
+      </div>
+
+      <div id="todoList"></div>
+    </div>
+
+    <script>
+      // 시작시 로컬 스토리지에 있는 값을 배열에 담아준다.
+      let todos = JSON.parse(localStorage.getItem("todos")) || [];
+
+      // 배열에서 업데이트 할때마다 실행될 함수.
+      // 매번 updateLocalStorage() 와 함께 호출되어 동기화 해준다.
+      function renderTodos() {
+        const todoList = document.getElementById("todoList");
+        todoList.innerHTML = "";
+
+        todos.forEach((todo, index) => {
+          const todoItem = document.createElement("div");
+          todoItem.className = "todo-item";
+          todoItem.textContent = todo;
+
+          const deleteButton = document.createElement("button");
+          deleteButton.textContent = "삭제";
+          deleteButton.onclick = () => deleteTodo(index);
+
+          todoItem.appendChild(deleteButton);
+          todoList.appendChild(todoItem);
+        });
+      }
+
+      // 할일을 추가하는 함수
+      function addTodo() {
+        const todoInput = document.getElementById("todoInput");
+        const newTodo = todoInput.value.trim();
+
+        if (newTodo !== "") {
+          todos.push(newTodo);
+          updateLocalStorage();
+          renderTodos();
+          todoInput.value = "";
+        }
+      }
+
+      // 할일을 삭제하는 함수
+      function deleteTodo(index) {
+        todos.splice(index, 1);
+        updateLocalStorage();
+        renderTodos();
+      }
+
+      // clear 함수를 사용하여 로컬 스토리지를 초기화하고 기존 배열도 빈 배열로 만들어줌
+      function deleteAll() {
+        todos = [];
+        window.localStorage.clear();
+        updateLocalStorage();
+        renderTodos();
+      }
+
+      // 배열의 값이 변경될때 마다 localStorage도 배열과 함께 동기화
+      function updateLocalStorage() {
+        localStorage.setItem("todos", JSON.stringify(todos));
+      }
+
+      // Enter 키로도 addTodo 함수를 동작할 수 있게 해주는 리스너
+      document
+        .getElementById("todoInput")
+        .addEventListener("keydown", function (event) {
+          if (event.key === "Enter") {
+            addTodo();
+          }
+        });
+
+      renderTodos();
+    </script>
+  </body>
+</html>
